@@ -1,0 +1,9 @@
+target/
+.idea
+project/plugins/project/
+project/project
+project/target
+project/metals.sbt
+.metals/
+.bloop/
+.bsp/
