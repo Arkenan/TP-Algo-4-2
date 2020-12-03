@@ -20,7 +20,7 @@ object Run extends App {
   val splitter0 = new Splitter[DataFrameRow](wc, List(), List())
 
   db.readRows()
-    .fold(splitter0)((splitter: Splitter[DataFrameRow], dfr: DataFrameRow) => splitter.feed(dfr))
+    .fold[Splitter[DataFrameRow]](splitter0)((splitter, dfr) => splitter.feed(dfr))
     .map(_.lists)
     .map(SparkRegressor.trainAndTest)
     .compile
