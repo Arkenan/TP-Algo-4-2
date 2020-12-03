@@ -24,16 +24,4 @@ case class DB(transactor: Transactor.Aux[IO, Unit]) {
       .stream
       .transact(transactor)
   }
-
-  /** Turns the result of an insert statement into a string that can be printed into a file. */
-  def toOutputLine(e: Either[Throwable, Int]): String = {
-    val format: SimpleDateFormat = new SimpleDateFormat("yyyy/MM/dd - HH:mm:ss.SSS")
-    val date = format.format(Calendar.getInstance.getTime)
-
-    e match {
-      case (Left(throwable)) => f"[$date] Error inserting row: ${throwable}\n"
-      case _ => ""
-    }
   }
-
-}

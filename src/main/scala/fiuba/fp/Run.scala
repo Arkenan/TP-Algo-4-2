@@ -17,14 +17,15 @@ object Run extends App {
 
   val db = DB(transactor)
 
-  val s = db.readRows().compile.toList.unsafeRunSync
+  val data = db.readRows().compile.toList.unsafeRunSync
+
   val spark = SparkSession.builder()
     .master("local[*]")
     .getOrCreate()
 
   import spark.implicits._
 
-  val df = s.toDF()
+  val df = data.toDF()
 
   print(df.show(5))
 
