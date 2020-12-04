@@ -42,7 +42,7 @@ src/
 --- SparkRegressor # Archivo con utilidades para entrenar y testear modelos de machine learning.
 ```
 
-### Pipeline
+### FS2 Pipeline
 
 La obtención y procesamiento de los datos sucede en un pipeline de FS2 con las siguientes etapas:
 
@@ -52,13 +52,16 @@ La obtención y procesamiento de los datos sucede en un pipeline de FS2 con las 
 - Se mapea el `Splitter` a sus dos listas, la primera para un training set y la segunda para un test set.
 - Se mapean los sets al `SparkRegressor` para su procesamiento.
 
-### Manejo de errores
-
-TODO: 
-- Qué pasa si la DB no está conectada?
-- Qué pasa si no hay elementos en la DB?
-
 ### Random Forest Regressor
 
-- TODO.
+Dentro del SparkRegressor se toman el train y test set y se siguen los siguientes pasos:
+
+- Se crea un assembler con las features (todas ls columnas menos `close`).
+- Se crea un Indexer con el target/label `close`.
+- Se crea un regresor con los hiperparámetros.
+- Los tres pasos anteriores se convierten en un pipeline de spark, que pasa a 
+ajustar un modelo. Con este modelo se hacen dos cosas:
+  - Se guarda un PMML.
+  - Se devuelve el resultado de ajustar el modelo al test set.
+
 
