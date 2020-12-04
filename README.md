@@ -16,16 +16,17 @@ Para ejecutar el código debe tenerse instalado [SBT](https://www.scala-sbt.org/
 
 ### Ejecución del programa
 
-Por el momento el programa se ejecuta correctamente en IntelliJ idea, pero no en SBT por alg problema de dependencias de Spark.
+Por el momento el programa se ejecuta correctamente en IntelliJ idea, pero no en SBT por un problema de dependencias de
+Spark.
 
 El programa no acepta argumentos y muestra por pantalla la separación entre sets de entrenamiento y testing.
 
 ### Output
 
-Habrán dos archivos de salida:
+Al ejecutar el pipeline, se escriben dos archivos de salida:
 
-- `results.txt`: tendrá los resultados de la precisión lograda con el modelo entrenado sobre el test set. 
-- `model.pmml`: Archivo que contiene el modelo entrenado en la ejecución. 
+- `results.txt`: Contiene el RME resultante de aplicar el modelo entrenado al test set. 
+- `model.pmml`: Archivo que contiene el modelo entrenado para futuras ejecuciones, independiente del lenguaje. 
 
 ## Descripción de la Solución
 
@@ -40,6 +41,7 @@ src/
 --- WightedCoin # Clase para simular eventos aleatorios booleanos con probabilidad.
 --- Splitter # Clase para agregar elementos a una de dos listas al azar.
 --- SparkRegressor # Archivo con utilidades para entrenar y testear modelos de machine learning.
+--- Persistence # Módulo con métodos para persistir los resultados de train y test.
 ```
 
 ### FS2 Pipeline
@@ -51,6 +53,8 @@ La obtención y procesamiento de los datos sucede en un pipeline de FS2 con las 
   Es decir, el resultado de esta etapa será un `Stream(Splitter[DataFrameRow])` con un solo elemento. 
 - Se mapea el `Splitter` a sus dos listas, la primera para un training set y la segunda para un test set.
 - Se mapean los sets al `SparkRegressor` para su procesamiento.
+- Los resultados del `SparRegressor` (schema, resultado de test y modelo) se pasan al módulo de persistencia para grabar
+  los resultados a disco.
 
 ### Random Forest Regressor
 
