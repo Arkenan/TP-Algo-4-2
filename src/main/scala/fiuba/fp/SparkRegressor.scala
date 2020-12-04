@@ -1,10 +1,17 @@
 package fiuba.fp
 
+import java.io.File
+
 import fiuba.fp.models.DataFrameRow
+import org.apache.spark.ml.evaluation.RegressionEvaluator
 import org.apache.spark.ml.feature.{StringIndexer, VectorAssembler}
 import org.apache.spark.ml.regression.RandomForestRegressor
-import org.apache.spark.ml.{Pipeline, Transformer}
+import org.apache.spark.ml.{Pipeline, PipelineModel, Transformer}
 import org.apache.spark.sql.SparkSession
+import org.jpmml.model.JAXBUtil
+import javax.xml.transform.stream.StreamResult
+import org.jpmml.sparkml.PMMLBuilder
+
 
 /**
  * Collection of Machine Learning methods to train and test a model given a training and testing sets of DataFrameRows
@@ -27,12 +34,14 @@ object SparkRegressor {
     val trainingSetDs = trainingSet.toDS()
 
     val assembler = new VectorAssembler()
-      .setInputCols(trainingSetDs.columns)
+      .setInputCols(trainingSetDs.drop("close").columns)
       .setOutputCol("features")
+      .setHandleInvalid("keep")
 
     val indexer = new StringIndexer()
       .setInputCol(target)
       .setOutputCol("label")
+      .setHandleInvalid("keep")
 
     val randomForestRegressor = new RandomForestRegressor()
       .setMaxDepth(3)
@@ -45,11 +54,25 @@ object SparkRegressor {
 
     val stages = Array(assembler, indexer, randomForestRegressor)
 
-    val sparkTransformer: Transformer = new Pipeline().setStages(stages)
-      .fit(trainingSetDs)
+    val pipeline = new Pipeline().setStages(stages)
 
-    val result = sparkTransformer.transform(testingSet.toDS())
+    val model: PipelineModel =   pipeline.fit(trainingSetDs)
 
-    print(result)
+    val result = model.transform(testingSet.toDS())
+
+    val evaluator = new RegressionEvaluator()
+      .setLabelCol("label")
+      .setPredictionCol("prediction")
+      .setMetricName("rmse")
+
+    val rmse = evaluator.evaluate(result)
+    println(s"RMSE: = $rmse")
+
+    val schema = trainingSetDs.toDF().schema
+
+    val pmml = new PMMLBuilder(schema,model).build()
+
+    JAXBUtil.marshalPMML(pmml, new StreamResult(new File("model.pmml")))
+
   }
 }
