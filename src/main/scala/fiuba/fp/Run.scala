@@ -2,12 +2,11 @@ package fiuba.fp
 
 import cats.effect.{ContextShift, IO}
 import doobie.util.transactor.Transactor
-import org.apache.spark.sql.SparkSession
+import fiuba.fp.models.DataFrameRow
 
 import scala.concurrent.ExecutionContext
 
 object Run extends App {
-
   implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
 
   val transactor = Transactor.fromDriverManager[IO](
@@ -17,16 +16,14 @@ object Run extends App {
 
   val db = DB(transactor)
 
-  val data = db.readRows().compile.toList.unsafeRunSync
+  val wc = new WeightedCoin(0.7F, 123L)
+  val splitter0 = new Splitter[DataFrameRow](wc, List(), List())
 
-  val spark = SparkSession.builder()
-    .master("local[*]")
-    .getOrCreate()
-
-  import spark.implicits._
-
-  val df = data.toDF()
-
-  print(df.show(5))
-
+  db.readRows()
+    .fold[Splitter[DataFrameRow]](splitter0)((splitter, dfr) => splitter.feed(dfr))
+    .map(_.lists)
+    .map(SparkRegressor.trainAndTest)
+    .compile
+    .drain
+    .unsafeRunSync
 }
