@@ -11,7 +11,6 @@ case class DataFrameRow(
                          OVol: Option[Int],
                          ODiff: Option[Int],
                          OpVol: Option[Int],
-                         unit: String,
                          dollarBN: Double,
                          dollarItau: Double,
                          wDiff: Double
