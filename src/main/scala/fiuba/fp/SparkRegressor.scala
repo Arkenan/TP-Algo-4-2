@@ -3,27 +3,22 @@ package fiuba.fp
 import java.io.File
 
 import fiuba.fp.models.DataFrameRow
-import org.apache.spark.ml.evaluation.RegressionEvaluator
 import org.apache.spark.ml.feature.{StringIndexer, VectorAssembler}
 import org.apache.spark.ml.regression.RandomForestRegressor
 import org.apache.spark.ml.{Pipeline, PipelineModel, Transformer}
-import org.apache.spark.sql.SparkSession
-import org.jpmml.model.JAXBUtil
-import javax.xml.transform.stream.StreamResult
-import org.jpmml.sparkml.PMMLBuilder
-
+import org.apache.spark.sql.{DataFrame, SparkSession}
 
 /**
  * Collection of Machine Learning methods to train and test a model given a training and testing sets of DataFrameRows
  */
 object SparkRegressor {
-  def trainAndTest(sets: (List[DataFrameRow], List[DataFrameRow])): Unit = trainAndTest(sets._1, sets._2)
+  def trainAndTest(sets: (List[DataFrameRow], List[DataFrameRow])): (DataFrame, PipelineModel) = trainAndTest(sets._1, sets._2)
 
-  def trainAndTest(trainingSet: List[DataFrameRow], testingSet: List[DataFrameRow]): Unit = {
+  def trainAndTest(trainingSet: List[DataFrameRow], testingSet: List[DataFrameRow]): (DataFrame, PipelineModel) = {
     randomForestRegression(trainingSet, testingSet, "close")
   }
 
-  def randomForestRegression(trainingSet: List[DataFrameRow], testingSet: List[DataFrameRow], target: String): Unit = {
+  def randomForestRegression(trainingSet: List[DataFrameRow], testingSet: List[DataFrameRow], target: String): (DataFrame, PipelineModel) = {
 
     val spark = SparkSession.builder()
       .master("local[*]")
@@ -60,19 +55,6 @@ object SparkRegressor {
 
     val result = model.transform(testingSet.toDS())
 
-    val evaluator = new RegressionEvaluator()
-      .setLabelCol("label")
-      .setPredictionCol("prediction")
-      .setMetricName("rmse")
-
-    val rmse = evaluator.evaluate(result)
-    println(s"RMSE: = $rmse")
-
-    val schema = trainingSetDs.toDF().schema
-
-    val pmml = new PMMLBuilder(schema,model).build()
-
-    JAXBUtil.marshalPMML(pmml, new StreamResult(new File("model.pmml")))
-
+    (result,  model)
   }
 }
