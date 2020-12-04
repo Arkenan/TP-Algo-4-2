@@ -7,6 +7,7 @@ import fiuba.fp.models.DataFrameRow
 import scala.concurrent.ExecutionContext
 
 object Run extends App {
+
   implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
 
   val transactor = Transactor.fromDriverManager[IO](
@@ -26,4 +27,6 @@ object Run extends App {
     .compile
     .drain
     .unsafeRunSync
+
+
 }
