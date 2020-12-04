@@ -53,19 +53,18 @@ La obtención y procesamiento de los datos sucede en un pipeline de FS2 con las 
   Es decir, el resultado de esta etapa será un `Stream(Splitter[DataFrameRow])` con un solo elemento. 
 - Se mapea el `Splitter` a sus dos listas, la primera para un training set y la segunda para un test set.
 - Se mapean los sets al `SparkRegressor` para su procesamiento.
-- Los resultados del `SparRegressor` (schema, resultado de test y modelo) se pasan al módulo de persistencia para grabar
+- Los resultados del `SparkRegressor` (schema, resultado de test y modelo) se pasan al módulo de persistencia para grabar
   los resultados a disco.
 
 ### Random Forest Regressor
 
 Dentro del SparkRegressor se toman el train y test set y se siguen los siguientes pasos:
 
-- Se crea un assembler con las features (todas ls columnas menos `close`).
+- Se crea un assembler con las features (todas las columnas menos `close`).
 - Se crea un Indexer con el target/label `close`.
 - Se crea un regresor con los hiperparámetros.
-- Los tres pasos anteriores se convierten en un pipeline de spark, que pasa a 
-ajustar un modelo. Con este modelo se hacen dos cosas:
+- Los resultado de tres pasos anteriores son utilizados en un pipeline de spark, con el cual se ajusta un modelo. Con este modelo se hacen dos cosas:
   - Se guarda un PMML.
-  - Se devuelve el resultado de ajustar el modelo al test set.
+  - Se devuelve el resultado obtenido luego de evaluar el modelo con el test set.
 
 
