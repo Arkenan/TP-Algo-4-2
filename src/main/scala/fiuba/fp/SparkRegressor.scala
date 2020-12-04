@@ -27,6 +27,7 @@ object SparkRegressor {
     val trainingSetDs = trainingSet.toDS()
 
     val assembler = new VectorAssembler()
+      .setHandleInvalid("keep")
       .setInputCols(trainingSetDs.columns)
       .setOutputCol("features")
 
@@ -51,5 +52,27 @@ object SparkRegressor {
     val result = sparkTransformer.transform(testingSet.toDS())
 
     print(result)
+
+   /* val normalizer = new Normalizer()
+      .setInputCol(assembler.getOutputCol)
+      .setOutputCol("features")
+    val regressor = new RandomForestRegressor()
+
+    val pipeline = new Pipeline()
+      .setStages(Array(assembler, normalizer, regressor))
+
+    val validator = new CrossValidator()
+      .setEstimator(pipeline)
+      .setEvaluator(new RegressionEvaluator)
+    val pGrid = new ParamGridBuilder()
+      .addGrid(normalizer.p, Array(1.0, 5.0, 10.0))
+      .addGrid(regressor.numTrees, Array(10, 50, 100))
+      .build()
+    validator.setEstimatorParamMaps(pGrid)
+    validator.setNumFolds(5)
+
+    val bestModel = validator.fit(train)
+    val prediction = bestModel.transform(test)
+    prediction.show() */
   }
 }
