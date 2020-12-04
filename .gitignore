@@ -7,3 +7,6 @@ project/metals.sbt
 .metals/
 .bloop/
 .bsp/
+model.pmml
+results.txt
+result.txt

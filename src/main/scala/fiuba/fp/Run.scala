@@ -24,9 +24,8 @@ object Run extends App {
     .fold[Splitter[DataFrameRow]](splitter0)((splitter, dfr) => splitter.feed(dfr))
     .map(_.lists)
     .map(SparkRegressor.trainAndTest)
+    .evalMap(Persistence.persist)
     .compile
     .drain
     .unsafeRunSync
-
-
 }

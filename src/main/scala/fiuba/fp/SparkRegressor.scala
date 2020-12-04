@@ -3,15 +3,10 @@ package fiuba.fp
 import java.io.File
 
 import fiuba.fp.models.DataFrameRow
-import org.apache.spark.ml.evaluation.RegressionEvaluator
 import org.apache.spark.ml.feature.{StringIndexer, VectorAssembler}
 import org.apache.spark.ml.regression.RandomForestRegressor
 import org.apache.spark.ml.{Pipeline, PipelineModel, Transformer}
 import org.apache.spark.sql.{DataFrame, SparkSession}
-import org.jpmml.model.JAXBUtil
-import javax.xml.transform.stream.StreamResult
-import org.jpmml.sparkml.PMMLBuilder
-
 
 /**
  * Collection of Machine Learning methods to train and test a model given a training and testing sets of DataFrameRows
