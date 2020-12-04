@@ -3,6 +3,9 @@ package fiuba.fp
 import fiuba.fp.models.DataFrameRow
 import org.apache.spark.sql.SparkSession
 
+/**
+ * Collection of Machine Learning methods to train and test a model given a training and testing sets of DataFrameRows
+ */
 object SparkRegressor {
   def trainAndTest(sets : (List[DataFrameRow], List[DataFrameRow])) : Unit = trainAndTest(sets._1, sets._2)
 
